@@ -1,0 +1,88 @@
+# ============================================================
+# DealDrop Backend - FastAPI / Python
+# ============================================================
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment variables / secrets
+.env
+.env.*
+!.env.example
+
+# Python packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Testing
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# Type checking / linting
+.mypy_cache/
+.pyright/
+.ruff_cache/
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary / generated data
+tmp/
+temp/
+cache/
+
+# Firecrawl temporary outputs
+scraped_data/
+crawl_results/
+firecrawl_output/
+scrape_results/
+
+# Raw scraper responses
+scrape_*.json
+crawl_*.json
+
+# Uploads / downloads generated locally
+uploads/
+downloads/
+
+# Test outputs
+test_output/
+test_results/
