@@ -9,6 +9,7 @@ from alembic import context
 from app.core.config import settings
 from app.db.base import Base
 from app.models.product import Product
+from app.models.price_history import PriceHistory
 
 
 # Alembic Config object

@@ -1,5 +1,7 @@
-from sqlalchemy import String, Numeric, Text
-from sqlalchemy.orm import Mapped, mapped_column
+from datetime import datetime
+
+from sqlalchemy import String, Numeric, Text, DateTime
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 
@@ -18,6 +20,13 @@ class Product(Base):
         nullable=False
     )
 
+    # Exact product listing URL being tracked
+    product_url: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+        unique=True
+    )
+
     current_price: Mapped[float] = mapped_column(
         Numeric(12, 2),
         nullable=False
@@ -31,4 +40,15 @@ class Product(Base):
     product_image_url: Mapped[str | None] = mapped_column(
         Text,
         nullable=True
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=datetime.utcnow,
+        nullable=False
+    )
+
+    price_history: Mapped[list["PriceHistory"]] = relationship(
+        back_populates="product",
+        cascade="all, delete-orphan"
     )
