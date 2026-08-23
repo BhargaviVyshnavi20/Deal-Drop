@@ -14,6 +14,8 @@ from sqlalchemy import select
 
 from app.services.price_tracker_service import PriceTrackerService
 
+
+
 router = APIRouter(
     prefix="/products",
     tags=["Products"]
@@ -186,3 +188,5 @@ async def check_all_product_prices(
             status_code=500,
             detail=str(e)
         )
+
+
