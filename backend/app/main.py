@@ -1,30 +1,12 @@
-from contextlib import asynccontextmanager
-
 from fastapi import FastAPI
 
 from app.routes.product import router as product_router
-from app.services.scheduler_service import (
-    start_scheduler,
-    scheduler
-)
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-
-    # Start scheduler when FastAPI starts
-    start_scheduler()
-
-    yield
-
-    # Stop scheduler when FastAPI shuts down
-    scheduler.shutdown()
+from app.routes.auth import router as auth_router
 
 
 app = FastAPI(
     title="Deal Drop API",
     version="1.0.0",
-    lifespan=lifespan
 )
 
 
@@ -34,3 +16,4 @@ async def root():
 
 
 app.include_router(product_router)
+app.include_router(auth_router)
