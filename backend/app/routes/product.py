@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, HttpUrl
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -31,13 +31,15 @@ class TrackProductRequest(BaseModel):
 # TRACK A NEW PRODUCT
 # =========================================================
 
-@router.post("/track")
+@router.post(
+    "/track",
+    status_code=status.HTTP_201_CREATED
+)
 async def track_product(
     request: TrackProductRequest,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-
     try:
         # Step 1: Check whether this URL is already tracked
         result = await db.execute(
