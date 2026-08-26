@@ -1,17 +1,23 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.database import get_db
-from app.models.user import User
-from app.core.security import hash_password
-
-from app.schemas.auth import UserSignup, UserLogin, Token
 from app.core.security import (
     hash_password,
     verify_password,
     create_access_token
 )
+from app.db.database import get_db
+from app.models.user import User
+from app.schemas.auth import (
+    UserSignup,
+    UserLogin,
+    Token,
+    GoogleAuthRequest
+)
+from app.services.google_auth_service import GoogleAuthService
+
 
 router = APIRouter(
     prefix="/auth",
@@ -53,9 +59,7 @@ async def signup(
 
     try:
         db.add(user)
-
         await db.commit()
-
         await db.refresh(user)
 
         return {
@@ -86,7 +90,7 @@ async def login(
     db: AsyncSession = Depends(get_db)
 ):
 
-    # Step 1: Find the user by email
+    # Find the user by email
     result = await db.execute(
         select(User).where(
             User.email == user_data.email
@@ -95,7 +99,7 @@ async def login(
 
     user = result.scalar_one_or_none()
 
-    # Step 2: Check email and password
+    # Check email and password
     if (
         not user
         or not user.password_hash
@@ -109,12 +113,94 @@ async def login(
             detail="Invalid email or password"
         )
 
-    # Step 3: Create JWT token
+    # Create JWT token
     access_token = create_access_token(
         subject=str(user.id)
     )
 
-    # Step 4: Return token
+    return {
+        "access_token": access_token,
+        "token_type": "bearer"
+    }
+
+
+@router.post(
+    "/google",
+    response_model=Token
+)
+async def google_login(
+    google_data: GoogleAuthRequest,
+    db: AsyncSession = Depends(get_db)
+):
+
+    google_auth_service = GoogleAuthService()
+
+    # Verify Google ID token
+    try:
+        user_info = google_auth_service.verify_google_token(
+            google_data.token
+        )
+
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid Google authentication token"
+        )
+
+    google_id = user_info["google_id"]
+    email = user_info["email"]
+    name = user_info["name"]
+    profile_picture_url = user_info["profile_picture_url"]
+
+    # Check whether this Google account already exists
+    result = await db.execute(
+        select(User).where(
+            User.google_id == google_id
+        )
+    )
+
+    user = result.scalar_one_or_none()
+
+    if not user:
+
+        # Check if a user already exists with the same email
+        result = await db.execute(
+            select(User).where(
+                User.email == email
+            )
+        )
+
+        user = result.scalar_one_or_none()
+
+        if user:
+            # Link existing account to Google
+            user.google_id = google_id
+            user.auth_provider = "google"
+
+            if profile_picture_url:
+                user.profile_picture_url = profile_picture_url
+
+        else:
+            # Create a new Google user
+            user = User(
+                name=name or email.split("@")[0],
+                email=email,
+                google_id=google_id,
+                auth_provider="google",
+                profile_picture_url=profile_picture_url,
+                password_hash=None
+            )
+
+            db.add(user)
+
+        await db.commit()
+        await db.refresh(user)
+
+    # Create DealDrop JWT
+    access_token = create_access_token(
+        subject=str(user.id)
+    )
+
     return {
         "access_token": access_token,
         "token_type": "bearer"

@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     RESEND_API_KEY: str
     RESEND_FROM_EMAIL: str
     
+    GOOGLE_CLIENT_ID: str
+    
     model_config = SettingsConfigDict(
         env_file=".env"
     )

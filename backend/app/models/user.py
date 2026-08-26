@@ -1,11 +1,11 @@
-from datetime import datetime
+from datetime import datetime, UTC
 
 from sqlalchemy import DateTime, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 
-
+default=lambda: datetime.now(UTC)
 class User(Base):
 
     __tablename__ = "users"
