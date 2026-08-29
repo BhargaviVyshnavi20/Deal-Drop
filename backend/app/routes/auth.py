@@ -5,11 +5,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from app.core.security import (
-    hash_password,
-    verify_password,
-    create_access_token
-)
 from app.db.database import get_db
 from app.models.user import User
 from app.schemas.auth import (
@@ -37,10 +32,6 @@ router = APIRouter(
 
 security = HTTPBearer()
 
-@router.post(
-    "/signup",
-    status_code=status.HTTP_201_CREATED
-)
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
@@ -66,6 +57,10 @@ async def get_current_user(
 
     return user
 
+@router.post(
+    "/signup",
+    status_code=status.HTTP_201_CREATED
+)
 
 async def signup(
     user_data: UserSignup,

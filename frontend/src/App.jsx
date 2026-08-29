@@ -7,6 +7,8 @@ import FeatureSection from './components/FeatureSection.jsx'
 import Footer from './components/Footer.jsx'
 import TrackedProducts from './components/TrackedProducts.jsx'
 
+import { apiRequest } from './api/client'
+
 
 
 function getInitialTheme() {
@@ -36,6 +38,45 @@ export default function App() {
       theme
     )
   }, [theme])
+
+  useEffect(() => {
+  async function restoreUser() {
+    const token = localStorage.getItem('access_token')
+
+    if (!token) {
+      return
+    }
+
+    try {
+      const userData = await apiRequest('/auth/me')
+
+      setUser(userData)
+    } catch (error) {
+      localStorage.removeItem('access_token')
+      setUser(null)
+    }
+  }
+
+  restoreUser()
+  }, [])
+
+  useEffect(() => {
+  async function restoreUser() {
+    const token = localStorage.getItem('access_token')
+
+    if (!token) return
+
+    try {
+      const userData = await apiRequest('/auth/me')
+      setUser(userData)
+    } catch (error) {
+      localStorage.removeItem('access_token')
+      setUser(null)
+    }
+  }
+
+  restoreUser()
+  }, [])
 
   function toggleTheme() {
     setTheme((prev) =>

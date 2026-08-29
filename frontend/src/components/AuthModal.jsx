@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import { apiRequest } from '../api/client'
 
+import { GoogleLogin } from '@react-oauth/google'
+
 const GOOGLE_ICON = (
   <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
     <path
@@ -48,11 +50,13 @@ export default function AuthModal({
     }
   }, [onClose])
 
+
   function handleOverlayClick(event) {
     if (event.target === event.currentTarget) {
       onClose()
     }
   }
+
 
   async function handleSubmit(event) {
     event.preventDefault()
@@ -64,12 +68,10 @@ export default function AuthModal({
 
     try {
       if (isSignIn) {
-        const email = formData.get('email')
-
         const data = await apiRequest('/auth/login', {
           method: 'POST',
           body: JSON.stringify({
-            email,
+            email: formData.get('email'),
             password: formData.get('password'),
           }),
         })
@@ -79,12 +81,9 @@ export default function AuthModal({
           data.access_token
         )
 
-        onAuthSuccess({
-          authenticated: true,
-          name: email.split('@')[0],
-          email,
-        })
+        const userData = await apiRequest('/auth/me')
 
+        onAuthSuccess(userData)
       } else {
         // SIGNUP
         await apiRequest('/auth/signup', {
@@ -106,6 +105,36 @@ export default function AuthModal({
       setLoading(false)
     }
   }
+
+
+    async function handleGoogleSuccess(credentialResponse) {
+    setError('')
+    setLoading(true)
+
+    try {
+      const data = await apiRequest('/auth/google', {
+        method: 'POST',
+        body: JSON.stringify({
+          token: credentialResponse.credential,
+        }),
+      })
+
+      localStorage.setItem(
+        'access_token',
+        data.access_token
+      )
+
+      const userData = await apiRequest('/auth/me')
+
+      onAuthSuccess(userData)
+
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
 
   return (
     <div
@@ -152,14 +181,12 @@ export default function AuthModal({
         </p>
 
         {/* We'll connect Google next */}
-        <button
-          type="button"
-          className="btn btn-google"
-          disabled={loading}
-        >
-          {GOOGLE_ICON}
-          Continue with Google
-        </button>
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => {
+              setError('Google sign-in failed. Please try again.')
+            }}
+          />
 
         <div className="modal-divider">
           <span>or</span>
