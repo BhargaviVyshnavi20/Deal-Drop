@@ -12,6 +12,7 @@ from app.schemas.product import ProductData
 from app.services.firecrawl_service import FirecrawlService
 from app.services.price_tracker_service import PriceTrackerService
 
+from app.utils.currency import normalize_currency
 
 router = APIRouter(
     prefix="/products",
@@ -73,13 +74,15 @@ async def track_product(
             product_name=product_data.productName,
             product_url=str(request.url),
             current_price=product_data.currentPrice,
-            currency_code=product_data.currencyCode,
+            currency_code=normalize_currency(
+                product_data.currencyCode
+            ),
             product_image_url=(
                 str(product_data.productImageUrl)
                 if product_data.productImageUrl
                 else None
             )
-        )
+)
 
         # Step 5: Add product
         db.add(product)

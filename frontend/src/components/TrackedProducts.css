@@ -83,6 +83,15 @@
   object-fit: cover;
 }
 
+.product-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
 .product-main-info {
   min-width: 0;
 }
@@ -116,12 +125,9 @@
   font-weight: 600;
 }
 
-.price-drop {
-  margin-top: 8px;
-  font-size: 13px;
-  color: #23805c;
-  font-weight: 600;
-}
+/* =========================================================
+   PRICE STATISTICS
+========================================================= */
 
 .price-stats {
   display: grid;
@@ -134,6 +140,7 @@
   padding: 14px;
   border-radius: 12px;
   background: #f8fafc;
+  border: 1px solid #edf0f3;
 }
 
 .stat-label {
@@ -154,54 +161,17 @@
   color: #f15a35 !important;
 }
 
-.price-range-section {
-  margin-top: 24px;
+.lowest-stat {
+  color: #23805c !important;
 }
 
-.range-labels {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-  font-size: 11px;
-  color: #94a3b8;
+.highest-stat {
+  color: #d75a5a !important;
 }
 
-.price-range-bar {
-  position: relative;
-  height: 8px;
-  border-radius: 999px;
-  background: linear-gradient(
-    90deg,
-    #4caf7d,
-    #f0c75e,
-    #ef6a4a
-  );
-}
-
-.current-price-marker {
-  position: absolute;
-  top: 50%;
-  width: 16px;
-  height: 16px;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: #ffffff;
-  border: 4px solid #f15a35;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
-}
-
-.marker-tooltip {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 4px 8px;
-  border-radius: 6px;
-  background: #263246;
-  color: white;
-  font-size: 10px;
-  white-space: nowrap;
-}
+/* =========================================================
+   ACTION BUTTONS
+========================================================= */
 
 .product-actions {
   display: flex;
@@ -244,9 +214,18 @@
   background: #fff1f1;
 }
 
+.remove-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   PRICE HISTORY CHART
+========================================================= */
+
 .chart-container {
-  margin-top: 28px;
-  padding-top: 24px;
+  margin-top: 24px;
+  padding-top: 20px;
   border-top: 1px solid #edf0f3;
 }
 
@@ -268,54 +247,165 @@
   color: #94a3b8;
 }
 
-.chart-badge {
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: #eaf8f1;
-  color: #23805c;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.chart-area {
-  height: 230px;
-  margin-top: 24px;
-  padding: 10px 0;
-}
-
-.price-chart {
+.price-chart-wrapper {
   width: 100%;
-  height: 100%;
-  overflow: visible;
+  height: 220px;
+  margin-top: 18px;
 }
 
-.grid-line {
-  stroke: #e9edf2;
-  stroke-width: 1;
-  stroke-dasharray: 5;
+.chart-placeholder,
+.chart-error {
+  margin-top: 20px;
+  padding: 30px;
+  text-align: center;
+  border-radius: 12px;
 }
 
-.chart-line {
-  fill: none;
-  stroke: #f15a35;
-  stroke-width: 4;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.chart-placeholder {
+  background: #f8fafc;
+  color: #64748b;
 }
 
-.chart-point {
-  fill: white;
-  stroke: #f15a35;
-  stroke-width: 4;
+.chart-error {
+  color: #d9534f;
+  background: rgba(217, 83, 79, 0.08);
 }
 
-.chart-footer {
+/* =========================================================
+   STATES
+========================================================= */
+
+.products-loading {
+  color: #64748b;
+}
+
+.products-error {
+  margin-bottom: 20px;
+  color: #d9534f;
+}
+
+.empty-products {
+  padding: 60px 30px;
+  text-align: center;
+  border: 1px dashed #d8dee8;
+  border-radius: 20px;
+  background: #fafbfc;
+}
+
+.empty-products h3 {
+  margin-top: 0;
+  color: #263246;
+}
+
+.empty-products p {
+  margin-bottom: 0;
+  color: #718096;
+}
+
+/* =========================================================
+   REMOVE CONFIRMATION MODAL
+========================================================= */
+
+.remove-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
   display: flex;
-  justify-content: space-between;
-  color: #94a3b8;
-  font-size: 12px;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(31, 42, 61, 0.45);
 }
 
+.remove-modal {
+  width: min(420px, 100%);
+  padding: 32px;
+  border-radius: 20px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.2);
+
+  text-align: center;
+}
+
+.remove-modal-icon {
+  width: 56px;
+  height: 56px;
+
+  display: grid;
+  place-items: center;
+
+  margin: 0 auto 18px;
+
+  border-radius: 50%;
+
+  background: #fff1f1;
+
+  font-size: 24px;
+}
+
+.remove-modal h3 {
+  margin: 0 0 12px;
+  color: #263246;
+}
+
+.remove-modal p {
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.remove-modal-warning {
+  font-size: 13px;
+  color: #d75a5a !important;
+}
+
+.remove-modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+
+  margin-top: 24px;
+}
+
+.remove-modal-actions button {
+  padding: 11px 18px;
+
+  border-radius: 10px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.remove-modal-cancel {
+  border: 1px solid #e1e6ec;
+
+  background: #ffffff;
+
+  color: #405066;
+}
+
+.remove-modal-confirm {
+  border: none;
+
+  background: #d75a5a;
+
+  color: #ffffff;
+}
+
+.remove-modal-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
 
 @media (max-width: 900px) {
   .products-grid {
@@ -323,8 +413,11 @@
   }
 }
 
-
 @media (max-width: 600px) {
+  .tracked-products-section {
+    padding: 50px 0;
+  }
+
   .tracked-products-header {
     align-items: flex-start;
     flex-direction: column;
@@ -339,8 +432,62 @@
     grid-template-columns: 1fr;
   }
 
-  .range-labels {
-    gap: 10px;
-    flex-wrap: wrap;
+  .product-actions {
+    flex-direction: column;
   }
+
+  .product-actions button,
+  .view-product-button {
+    width: 100%;
+    text-align: center;
+  }
+
+  .price-chart-wrapper {
+    height: 200px;
+  }
+
+  .remove-modal {
+    padding: 24px;
+  }
+
+  .remove-modal-actions {
+    flex-direction: column;
+  }
+
+  .remove-modal-actions button {
+    width: 100%;
+  }
+}
+
+/* =========================================
+   PRICE CHANGE INDICATOR
+========================================= */
+
+.price-change {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  margin-top: 8px;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* Price increased */
+
+.price-change-increase {
+  color: #d95d4f;
+}
+
+/* Price decreased */
+
+.price-change-decrease {
+  color: #23805c;
+}
+
+/* No change */
+
+.price-change-neutral {
+  color: #94a3b8;
 }
