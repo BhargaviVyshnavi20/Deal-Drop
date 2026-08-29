@@ -1,5 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
+import { apiRequest } from '../api/client'
 
 const GOOGLE_ICON = (
   <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
@@ -22,15 +23,25 @@ const GOOGLE_ICON = (
   </svg>
 )
 
-export default function AuthModal({ mode, onClose, onSwitchMode, onAuthSuccess }) {
+export default function AuthModal({
+  mode,
+  onClose,
+  onSwitchMode,
+  onAuthSuccess,
+}) {
   const isSignIn = mode === 'signin'
+
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     function handleKeyDown(event) {
       if (event.key === 'Escape') onClose()
     }
+
     document.addEventListener('keydown', handleKeyDown)
     document.body.style.overflow = 'hidden'
+
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
       document.body.style.overflow = ''
@@ -38,23 +49,81 @@ export default function AuthModal({ mode, onClose, onSwitchMode, onAuthSuccess }
   }, [onClose])
 
   function handleOverlayClick(event) {
-    if (event.target === event.currentTarget) onClose()
+    if (event.target === event.currentTarget) {
+      onClose()
+    }
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault()
-    onAuthSuccess()
+
+    setError('')
+    setLoading(true)
+
+    const formData = new FormData(event.currentTarget)
+
+    try {
+      if (isSignIn) {
+        const email = formData.get('email')
+
+        const data = await apiRequest('/auth/login', {
+          method: 'POST',
+          body: JSON.stringify({
+            email,
+            password: formData.get('password'),
+          }),
+        })
+
+        localStorage.setItem(
+          'access_token',
+          data.access_token
+        )
+
+        onAuthSuccess({
+          authenticated: true,
+          name: email.split('@')[0],
+          email,
+        })
+
+      } else {
+        // SIGNUP
+        await apiRequest('/auth/signup', {
+          method: 'POST',
+          body: JSON.stringify({
+            name: formData.get('name'),
+            email: formData.get('email'),
+            password: formData.get('password'),
+          }),
+        })
+
+        // Switch to login after successful signup
+        onSwitchMode()
+      }
+
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
-    <div className="modal-overlay" onMouseDown={handleOverlayClick}>
+    <div
+      className="modal-overlay"
+      onMouseDown={handleOverlayClick}
+    >
       <div
         className="modal"
         role="dialog"
         aria-modal="true"
         aria-labelledby="auth-modal-title"
       >
-        <button type="button" className="modal-close" onClick={onClose} aria-label="Close">
+        <button
+          type="button"
+          className="modal-close"
+          onClick={onClose}
+          aria-label="Close"
+        >
           <X size={18} />
         </button>
 
@@ -75,11 +144,19 @@ export default function AuthModal({ mode, onClose, onSwitchMode, onAuthSuccess }
         <h2 id="auth-modal-title" className="modal-title">
           {isSignIn ? 'Welcome back' : 'Create your account'}
         </h2>
+
         <p className="modal-subtitle">
-          {isSignIn ? 'Sign in to continue tracking prices.' : 'Start tracking prices and save money.'}
+          {isSignIn
+            ? 'Sign in to continue tracking prices.'
+            : 'Start tracking prices and save money.'}
         </p>
 
-        <button type="button" className="btn btn-google" onClick={onAuthSuccess}>
+        {/* We'll connect Google next */}
+        <button
+          type="button"
+          className="btn btn-google"
+          disabled={loading}
+        >
           {GOOGLE_ICON}
           Continue with Google
         </button>
@@ -92,18 +169,35 @@ export default function AuthModal({ mode, onClose, onSwitchMode, onAuthSuccess }
           {!isSignIn && (
             <label className="field">
               <span className="field-label">Full Name</span>
-              <input type="text" name="name" required placeholder="Alex Johnson" />
+              <input
+                type="text"
+                name="name"
+                required
+                minLength="2"
+                placeholder="Alex Johnson"
+              />
             </label>
           )}
 
           <label className="field">
             <span className="field-label">Email</span>
-            <input type="email" name="email" required placeholder="you@example.com" />
+            <input
+              type="email"
+              name="email"
+              required
+              placeholder="you@example.com"
+            />
           </label>
 
           <label className="field">
             <span className="field-label">Password</span>
-            <input type="password" name="password" required placeholder="••••••••" />
+            <input
+              type="password"
+              name="password"
+              required
+              minLength="8"
+              placeholder="••••••••"
+            />
           </label>
 
           {isSignIn && (
@@ -112,14 +206,36 @@ export default function AuthModal({ mode, onClose, onSwitchMode, onAuthSuccess }
             </a>
           )}
 
-          <button type="submit" className="btn btn-primary modal-submit">
-            {isSignIn ? 'Sign In' : 'Create Account'}
+          {error && (
+            <p className="auth-error">
+              {error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            className="btn btn-primary modal-submit"
+            disabled={loading}
+          >
+            {loading
+              ? 'Please wait...'
+              : isSignIn
+                ? 'Sign In'
+                : 'Create Account'}
           </button>
         </form>
 
         <p className="modal-switch">
-          {isSignIn ? "Don't have an account? " : 'Already have an account? '}
-          <button type="button" className="modal-switch-link" onClick={onSwitchMode}>
+          {isSignIn
+            ? "Don't have an account? "
+            : 'Already have an account? '}
+
+          <button
+            type="button"
+            className="modal-switch-link"
+            onClick={onSwitchMode}
+            disabled={loading}
+          >
             {isSignIn ? 'Sign Up' : 'Sign In'}
           </button>
         </p>

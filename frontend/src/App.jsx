@@ -1,42 +1,55 @@
 import { useEffect, useState } from 'react'
+
 import Header from './components/Header.jsx'
 import Hero from './components/Hero.jsx'
 import AuthModal from './components/AuthModal.jsx'
 import FeatureSection from './components/FeatureSection.jsx'
 import Footer from './components/Footer.jsx'
+import TrackedProducts from './components/TrackedProducts.jsx'
 
-const MOCK_USER = {
-  name: 'Alex Johnson',
-  email: 'alex@example.com',
-}
+
 
 function getInitialTheme() {
   if (typeof window === 'undefined') return 'light'
+
   const stored = window.localStorage.getItem('dealdrop-theme')
-  if (stored === 'light' || stored === 'dark') return stored
-  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+
+  if (stored === 'light' || stored === 'dark') {
+    return stored
+  }
+
+  return window.matchMedia?.('(prefers-color-scheme: dark)').matches
+    ? 'dark'
+    : 'light'
 }
 
 export default function App() {
   const [theme, setTheme] = useState(getInitialTheme)
   const [user, setUser] = useState(null)
-  const [authModal, setAuthModal] = useState(null) // null | 'signin' | 'signup'
+  const [authModal, setAuthModal] = useState(null)
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
-    window.localStorage.setItem('dealdrop-theme', theme)
+
+    window.localStorage.setItem(
+      'dealdrop-theme',
+      theme
+    )
   }, [theme])
 
   function toggleTheme() {
-    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'))
+    setTheme((prev) =>
+      prev === 'light' ? 'dark' : 'light'
+    )
   }
 
-  function handleAuthSuccess() {
-    setUser(MOCK_USER)
+  function handleAuthSuccess(userData) {
+    setUser(userData)
     setAuthModal(null)
   }
 
   function handleSignOut() {
+    localStorage.removeItem('access_token')
     setUser(null)
   }
 
@@ -52,8 +65,18 @@ export default function App() {
       />
 
       <main>
-        <Hero user={user} onRequireAuth={() => setAuthModal('signup')} />
-        {!user && <FeatureSection onOpenSignUp={() => setAuthModal('signup')} />}
+        <Hero
+          user={user}
+          onRequireAuth={() => setAuthModal('signup')}
+        />
+
+        {user ? (
+          <TrackedProducts />
+        ) : (
+          <FeatureSection
+            onOpenSignUp={() => setAuthModal('signup')}
+          />
+        )}
       </main>
 
       <Footer />
@@ -62,7 +85,13 @@ export default function App() {
         <AuthModal
           mode={authModal}
           onClose={() => setAuthModal(null)}
-          onSwitchMode={() => setAuthModal(authModal === 'signin' ? 'signup' : 'signin')}
+          onSwitchMode={() =>
+            setAuthModal(
+              authModal === 'signin'
+                ? 'signup'
+                : 'signin'
+            )
+          }
           onAuthSuccess={handleAuthSuccess}
         />
       )}

@@ -3,6 +3,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
 from app.core.security import (
     hash_password,
     verify_password,
@@ -16,7 +18,16 @@ from app.schemas.auth import (
     Token,
     GoogleAuthRequest
 )
+
+from app.core.security import (
+    hash_password,
+    verify_password,
+    create_access_token,
+    verify_access_token,
+)
+
 from app.services.google_auth_service import GoogleAuthService
+
 
 
 router = APIRouter(
@@ -24,11 +35,38 @@ router = APIRouter(
     tags=["Authentication"]
 )
 
+security = HTTPBearer()
 
 @router.post(
     "/signup",
     status_code=status.HTTP_201_CREATED
 )
+
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: AsyncSession = Depends(get_db)
+):
+    token = credentials.credentials
+
+    user_id = verify_access_token(token)
+
+    result = await db.execute(
+        select(User).where(
+            User.id == int(user_id)
+        )
+    )
+
+    user = result.scalar_one_or_none()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found"
+        )
+
+    return user
+
+
 async def signup(
     user_data: UserSignup,
     db: AsyncSession = Depends(get_db)
@@ -204,4 +242,17 @@ async def google_login(
     return {
         "access_token": access_token,
         "token_type": "bearer"
+    }
+
+@router.get("/me")
+async def get_me(
+    current_user: User = Depends(get_current_user)
+):
+    return {
+        "id": current_user.id,
+        "name": current_user.name,
+        "email": current_user.email,
+        "auth_provider": current_user.auth_provider,
+        "profile_picture_url": current_user.profile_picture_url,
+        "created_at": current_user.created_at,
     }

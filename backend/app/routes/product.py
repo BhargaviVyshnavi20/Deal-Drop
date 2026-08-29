@@ -43,10 +43,11 @@ async def track_product(
     try:
         # Step 1: Check whether this URL is already tracked
         result = await db.execute(
-            select(Product).where(
-                Product.product_url == str(request.url)
-            )
+        select(Product).where(
+            Product.product_url == str(request.url),
+            Product.user_id == current_user.id
         )
+    )
 
         existing_product = result.scalar_one_or_none()
 

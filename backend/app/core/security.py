@@ -1,5 +1,8 @@
 from datetime import datetime, timedelta, timezone
 
+from jwt.exceptions import InvalidTokenError
+
+from fastapi import HTTPException, status
 import jwt
 from pwdlib import PasswordHash
 
@@ -54,3 +57,31 @@ def create_access_token(
     )
 
     return encoded_jwt
+
+def verify_access_token(token: str) -> str:
+    """
+    Verify a JWT access token and return the user ID.
+    """
+
+    try:
+        payload = jwt.decode(
+            token,
+            settings.SECRET_KEY,
+            algorithms=[settings.ALGORITHM]
+        )
+
+        user_id = payload.get("sub")
+
+        if user_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid authentication token"
+            )
+
+        return user_id
+
+    except InvalidTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired authentication token"
+        )

@@ -72,9 +72,8 @@ def test_send_lowest_price_alert_successfully(monkeypatch):
 
     assert "Test Laptop" in email_data["html"]
 
-    assert "50000.0" in email_data["html"]
-
-    assert "45000.0" in email_data["html"]
+    assert "50,000.00" in email_data["html"]
+    assert "45,000.00" in email_data["html"]
 
     assert "INR" in email_data["html"]
 
