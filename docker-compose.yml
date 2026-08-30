@@ -1,0 +1,61 @@
+services:
+  database:
+    image: postgres:16-alpine
+    container_name: dealdrop_database
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: deal_drop
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d deal_drop"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+
+    container_name: dealdrop_backend
+
+    ports:
+      - "8000:8000"
+
+    env_file:
+      - ./backend/.env
+
+    environment:
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@database:5432/deal_drop
+
+    depends_on:
+      database:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+
+    container_name: dealdrop_frontend
+
+    ports:
+      - "5173:5173"
+
+    env_file:
+      - ./frontend/.env
+
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

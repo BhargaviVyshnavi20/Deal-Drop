@@ -8,13 +8,12 @@ from app.routes.auth import router as auth_router
 
 from app.services.scheduler_service import (
     start_scheduler,
-    shutdown_scheduler
+    shutdown_scheduler,
 )
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-
     # Application startup
     start_scheduler()
 
@@ -27,7 +26,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Deal Drop API",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 
