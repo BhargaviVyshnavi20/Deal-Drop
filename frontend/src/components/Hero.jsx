@@ -60,7 +60,7 @@ export default function Hero({
       });
 
       const response = await fetch(
-        "http://127.0.0.1:8000/products/track",
+        "https://deal-drop-jp5q.onrender.com/products/track",
         {
           method: "POST",
 
