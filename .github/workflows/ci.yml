@@ -49,6 +49,8 @@ jobs:
 
       GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
 
+      FRONTEND_URL: http://localhost:5173
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
