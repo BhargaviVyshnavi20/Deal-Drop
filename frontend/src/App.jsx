@@ -42,6 +42,10 @@ export default function App() {
 
   const [user, setUser] = useState(null);
 
+  // Supported modes:
+  // "signin"
+  // "signup"
+  // "forgot-password"
   const [authModal, setAuthModal] = useState(null);
 
   // Used to refresh tracked products after
@@ -148,12 +152,41 @@ export default function App() {
   }
 
   // =========================================================
+  // AUTH MODAL MODE SWITCH
+  // =========================================================
+
+  function handleAuthModeSwitch(newMode) {
+    // If AuthModal explicitly provides a mode,
+    // use that mode.
+    //
+    // This is needed for:
+    // signin -> forgot-password
+    // forgot-password -> signin
+    // signup -> signin
+
+    if (newMode) {
+      setAuthModal(newMode);
+      return;
+    }
+
+    // Normal Sign In <-> Sign Up switching
+    setAuthModal(
+      authModal === "signin"
+        ? "signup"
+        : "signin"
+    );
+  }
+
+  // =========================================================
   // UI
   // =========================================================
 
   return (
     <div className="app">
-      {/* HEADER */}
+      {/* =====================================================
+          HEADER
+          ===================================================== */}
+
       <Header
         theme={theme}
         onToggleTheme={toggleTheme}
@@ -168,7 +201,10 @@ export default function App() {
       />
 
       <main>
-        {/* HERO */}
+        {/* ===================================================
+            HERO
+            =================================================== */}
+
         <Hero
           user={user}
 
@@ -182,7 +218,10 @@ export default function App() {
           onProductTracked={handleProductTracked}
         />
 
-        {/* AUTHENTICATED / UNAUTHENTICATED CONTENT */}
+        {/* ===================================================
+            AUTHENTICATED / UNAUTHENTICATED CONTENT
+            =================================================== */}
+
         {user ? (
           <TrackedProducts
             refreshTrigger={refreshProducts}
@@ -196,23 +235,31 @@ export default function App() {
         )}
       </main>
 
-      {/* FOOTER */}
+      {/* =====================================================
+          FOOTER
+          ===================================================== */}
+
       <Footer />
 
-      {/* AUTH MODAL */}
+      {/* =====================================================
+          AUTH MODAL
+          ===================================================== */}
+
       {authModal && (
         <AuthModal
           mode={authModal}
+
           onClose={() =>
             setAuthModal(null)
           }
-          onSwitchMode={() =>
-            setAuthModal(
-              authModal === "signin"
-                ? "signup"
-                : "signin"
-            )
-          }
+
+          // Supports:
+          // - Sign In -> Sign Up
+          // - Sign Up -> Sign In
+          // - Sign In -> Forgot Password
+          // - Forgot Password -> Sign In
+          onSwitchMode={handleAuthModeSwitch}
+
           onAuthSuccess={handleAuthSuccess}
         />
       )}

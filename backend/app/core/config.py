@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     
     GOOGLE_CLIENT_ID: str
     
+    FRONTEND_URL: str
+    
     model_config = SettingsConfigDict(
         env_file=".env"
     )

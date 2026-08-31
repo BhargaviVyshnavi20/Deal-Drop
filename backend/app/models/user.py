@@ -1,13 +1,12 @@
-from datetime import datetime, UTC
+from datetime import datetime
 
 from sqlalchemy import DateTime, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 
-default=lambda: datetime.now(UTC)
-class User(Base):
 
+class User(Base):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(
@@ -52,6 +51,27 @@ class User(Base):
         String(500),
         nullable=True
     )
+
+    # =========================================================
+    # PASSWORD RESET
+    # =========================================================
+
+    # Stores the HASH of the password reset token.
+    # The actual token is never stored in the database.
+    password_reset_token_hash: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True
+    )
+
+    # Time at which the password reset token expires.
+    password_reset_expires_at: Mapped[datetime | None] = mapped_column(
+        DateTime,
+        nullable=True
+    )
+
+    # =========================================================
+    # ACCOUNT CREATION
+    # =========================================================
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime,

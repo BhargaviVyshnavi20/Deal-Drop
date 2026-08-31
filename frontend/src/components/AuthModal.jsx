@@ -1,29 +1,7 @@
 import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import { apiRequest } from '../api/client'
-
 import { GoogleLogin } from '@react-oauth/google'
-
-const GOOGLE_ICON = (
-  <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
-    <path
-      fill="#4285F4"
-      d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.87 2.7-6.62z"
-    />
-    <path
-      fill="#34A853"
-      d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.95v2.33A9 9 0 0 0 9 18z"
-    />
-    <path
-      fill="#FBBC05"
-      d="M3.95 10.7A5.4 5.4 0 0 1 3.67 9c0-.59.1-1.17.28-1.7V4.97H.95A9 9 0 0 0 0 9c0 1.45.35 2.83.95 4.03l3-2.33z"
-    />
-    <path
-      fill="#EA4335"
-      d="M9 3.58c1.32 0 2.51.46 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .95 4.97l3 2.33C4.66 5.17 6.65 3.58 9 3.58z"
-    />
-  </svg>
-)
 
 export default function AuthModal({
   mode,
@@ -32,13 +10,17 @@ export default function AuthModal({
   onAuthSuccess,
 }) {
   const isSignIn = mode === 'signin'
+  const isForgotPassword = mode === 'forgot-password'
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [forgotSuccess, setForgotSuccess] = useState(false)
 
   useEffect(() => {
     function handleKeyDown(event) {
-      if (event.key === 'Escape') onClose()
+      if (event.key === 'Escape') {
+        onClose()
+      }
     }
 
     document.addEventListener('keydown', handleKeyDown)
@@ -50,13 +32,26 @@ export default function AuthModal({
     }
   }, [onClose])
 
-
   function handleOverlayClick(event) {
     if (event.target === event.currentTarget) {
       onClose()
     }
   }
 
+  function openForgotPassword() {
+    setError('')
+    setForgotSuccess(false)
+
+    // Tell the parent to show the forgot-password mode.
+    onSwitchMode('forgot-password')
+  }
+
+  function backToSignIn() {
+    setError('')
+    setForgotSuccess(false)
+
+    onSwitchMode('signin')
+  }
 
   async function handleSubmit(event) {
     event.preventDefault()
@@ -67,6 +62,26 @@ export default function AuthModal({
     const formData = new FormData(event.currentTarget)
 
     try {
+      // =====================================================
+      // FORGOT PASSWORD
+      // =====================================================
+
+      if (isForgotPassword) {
+        await apiRequest('/auth/forgot-password', {
+          method: 'POST',
+          body: JSON.stringify({
+            email: formData.get('email'),
+          }),
+        })
+
+        setForgotSuccess(true)
+        return
+      }
+
+      // =====================================================
+      // SIGN IN
+      // =====================================================
+
       if (isSignIn) {
         const data = await apiRequest('/auth/login', {
           method: 'POST',
@@ -84,30 +99,44 @@ export default function AuthModal({
         const userData = await apiRequest('/auth/me')
 
         onAuthSuccess(userData)
-      } else {
-        // SIGNUP
-        await apiRequest('/auth/signup', {
-          method: 'POST',
-          body: JSON.stringify({
-            name: formData.get('name'),
-            email: formData.get('email'),
-            password: formData.get('password'),
-          }),
-        })
 
-        // Switch to login after successful signup
-        onSwitchMode()
+        return
       }
 
+      // =====================================================
+      // SIGN UP
+      // =====================================================
+
+      await apiRequest('/auth/signup', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: formData.get('name'),
+          email: formData.get('email'),
+          password: formData.get('password'),
+        }),
+      })
+
+      // Switch back to sign in after successful signup.
+      onSwitchMode('signin')
+
     } catch (err) {
-      setError(err.message)
+      console.error('Authentication error:', err)
+
+      if (err instanceof Error) {
+        setError(err.message)
+      } else {
+        setError('Something went wrong. Please try again.')
+      }
     } finally {
       setLoading(false)
     }
   }
 
+  // ===========================================================
+  // GOOGLE LOGIN
+  // ===========================================================
 
-    async function handleGoogleSuccess(credentialResponse) {
+  async function handleGoogleSuccess(credentialResponse) {
     setError('')
     setLoading(true)
 
@@ -129,12 +158,111 @@ export default function AuthModal({
       onAuthSuccess(userData)
 
     } catch (err) {
-      setError(err.message)
+      console.error('Google sign-in error:', err)
+
+      if (err instanceof Error) {
+        setError(err.message)
+      } else {
+        setError(
+          'Google sign-in failed. Please try again.'
+        )
+      }
     } finally {
       setLoading(false)
     }
   }
 
+  // ===========================================================
+  // FORGOT PASSWORD SUCCESS SCREEN
+  // ===========================================================
+
+  if (isForgotPassword && forgotSuccess) {
+    return (
+      <div
+        className="modal-overlay"
+        onMouseDown={handleOverlayClick}
+      >
+        <div
+          className="modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="auth-modal-title"
+        >
+          <button
+            type="button"
+            className="modal-close"
+            onClick={onClose}
+            aria-label="Close"
+          >
+            <X size={18} />
+          </button>
+
+          <span
+            className="modal-logo"
+            aria-hidden="true"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+            >
+              <rect
+                x="8"
+                y="1"
+                width="9.9"
+                height="9.9"
+                rx="2"
+                transform="rotate(45 8 1)"
+                fill="currentColor"
+              />
+            </svg>
+          </span>
+
+          <h2
+            id="auth-modal-title"
+            className="modal-title"
+          >
+            Check your email
+          </h2>
+
+          <p className="modal-subtitle">
+            If an account exists with that email,
+            we've sent a password reset link.
+          </p>
+
+          <div
+            style={{
+              marginTop: '24px',
+              padding: '18px',
+              borderRadius: '8px',
+              backgroundColor: '#ecfdf5',
+              color: '#166534',
+              lineHeight: '1.5',
+              fontSize: '14px',
+            }}
+          >
+            Check your inbox for the DealDrop
+            password reset email. The link will
+            expire in 15 minutes.
+          </div>
+
+          <button
+            type="button"
+            className="btn btn-primary modal-submit"
+            style={{ marginTop: '24px' }}
+            onClick={backToSignIn}
+          >
+            Back to Sign In
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // ===========================================================
+  // MAIN MODAL
+  // ===========================================================
 
   return (
     <div
@@ -156,8 +284,16 @@ export default function AuthModal({
           <X size={18} />
         </button>
 
-        <span className="modal-logo" aria-hidden="true">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <span
+          className="modal-logo"
+          aria-hidden="true"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+          >
             <rect
               x="8"
               y="1"
@@ -170,44 +306,78 @@ export default function AuthModal({
           </svg>
         </span>
 
-        <h2 id="auth-modal-title" className="modal-title">
-          {isSignIn ? 'Welcome back' : 'Create your account'}
+        <h2
+          id="auth-modal-title"
+          className="modal-title"
+        >
+          {isForgotPassword
+            ? 'Forgot your password?'
+            : isSignIn
+              ? 'Welcome back'
+              : 'Create your account'}
         </h2>
 
         <p className="modal-subtitle">
-          {isSignIn
-            ? 'Sign in to continue tracking prices.'
-            : 'Start tracking prices and save money.'}
+          {isForgotPassword
+            ? 'Enter your email and we will send you a password reset link.'
+            : isSignIn
+              ? 'Sign in to continue tracking prices.'
+              : 'Start tracking prices and save money.'}
         </p>
 
-        {/* We'll connect Google next */}
-          <GoogleLogin
-            onSuccess={handleGoogleSuccess}
-            onError={() => {
-              setError('Google sign-in failed. Please try again.')
-            }}
-          />
+        {/* =====================================================
+            GOOGLE LOGIN
+        ===================================================== */}
 
-        <div className="modal-divider">
-          <span>or</span>
-        </div>
+        {!isForgotPassword && (
+          <>
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => {
+                setError(
+                  'Google sign-in failed. Please try again.'
+                )
+              }}
+            />
 
-        <form className="modal-form" onSubmit={handleSubmit}>
-          {!isSignIn && (
+            <div className="modal-divider">
+              <span>or</span>
+            </div>
+          </>
+        )}
+
+        {/* =====================================================
+            FORM
+        ===================================================== */}
+
+        <form
+          className="modal-form"
+          onSubmit={handleSubmit}
+        >
+          {/* FULL NAME - SIGN UP ONLY */}
+          {!isSignIn && !isForgotPassword && (
             <label className="field">
-              <span className="field-label">Full Name</span>
+              <span className="field-label">
+                Full Name
+              </span>
+
               <input
                 type="text"
                 name="name"
                 required
                 minLength="2"
+                maxLength="255"
                 placeholder="Alex Johnson"
               />
             </label>
           )}
 
+          {/* EMAIL */}
           <label className="field">
-            <span className="field-label">Email</span>
+            <span className="field-label">
+              Email
+            </span>
+
             <input
               type="email"
               name="email"
@@ -216,29 +386,44 @@ export default function AuthModal({
             />
           </label>
 
-          <label className="field">
-            <span className="field-label">Password</span>
-            <input
-              type="password"
-              name="password"
-              required
-              minLength="8"
-              placeholder="••••••••"
-            />
-          </label>
+          {/* PASSWORD - SIGN IN / SIGN UP ONLY */}
+          {!isForgotPassword && (
+            <label className="field">
+              <span className="field-label">
+                Password
+              </span>
 
-          {isSignIn && (
-            <a href="#forgot" className="forgot-link">
-              Forgot password?
-            </a>
+              <input
+                type="password"
+                name="password"
+                required
+                minLength="8"
+                maxLength="100"
+                placeholder="••••••••"
+              />
+            </label>
           )}
 
+          {/* FORGOT PASSWORD LINK */}
+          {isSignIn && (
+            <button
+              type="button"
+              className="forgot-link"
+              onClick={openForgotPassword}
+              disabled={loading}
+            >
+              Forgot password?
+            </button>
+          )}
+
+          {/* ERROR */}
           {error && (
             <p className="auth-error">
               {error}
             </p>
           )}
 
+          {/* SUBMIT */}
           <button
             type="submit"
             className="btn btn-primary modal-submit"
@@ -246,26 +431,49 @@ export default function AuthModal({
           >
             {loading
               ? 'Please wait...'
-              : isSignIn
-                ? 'Sign In'
-                : 'Create Account'}
+              : isForgotPassword
+                ? 'Send Reset Link'
+                : isSignIn
+                  ? 'Sign In'
+                  : 'Create Account'}
           </button>
         </form>
 
-        <p className="modal-switch">
-          {isSignIn
-            ? "Don't have an account? "
-            : 'Already have an account? '}
+        {/* =====================================================
+            BOTTOM NAVIGATION
+        ===================================================== */}
 
-          <button
-            type="button"
-            className="modal-switch-link"
-            onClick={onSwitchMode}
-            disabled={loading}
-          >
-            {isSignIn ? 'Sign Up' : 'Sign In'}
-          </button>
-        </p>
+        {isForgotPassword ? (
+          <p className="modal-switch">
+            Remember your password?{' '}
+
+            <button
+              type="button"
+              className="modal-switch-link"
+              onClick={backToSignIn}
+              disabled={loading}
+            >
+              Sign In
+            </button>
+          </p>
+        ) : (
+          <p className="modal-switch">
+            {isSignIn
+              ? "Don't have an account? "
+              : 'Already have an account? '}
+
+            <button
+              type="button"
+              className="modal-switch-link"
+              onClick={onSwitchMode}
+              disabled={loading}
+            >
+              {isSignIn
+                ? 'Sign Up'
+                : 'Sign In'}
+            </button>
+          </p>
+        )}
       </div>
     </div>
   )

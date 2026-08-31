@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta, timezone
+import hashlib
+import secrets
 
 from jwt.exceptions import InvalidTokenError
 
@@ -58,6 +60,7 @@ def create_access_token(
 
     return encoded_jwt
 
+
 def verify_access_token(token: str) -> str:
     """
     Verify a JWT access token and return the user ID.
@@ -85,3 +88,29 @@ def verify_access_token(token: str) -> str:
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired authentication token"
         )
+
+
+# =========================================================
+# PASSWORD RESET TOKEN
+# =========================================================
+
+def create_password_reset_token() -> str:
+    """
+    Generate a cryptographically secure password reset token.
+
+    The raw token is returned to the caller so it can be
+    included in the reset email. Only its hash should be
+    stored in the database.
+    """
+    return secrets.token_urlsafe(32)
+
+
+def hash_password_reset_token(token: str) -> str:
+    """
+    Hash a password reset token before storing it.
+
+    The raw reset token is never stored in the database.
+    """
+    return hashlib.sha256(
+        token.encode("utf-8")
+    ).hexdigest()

@@ -277,3 +277,211 @@ class EmailService:
             raise Exception(
                 f"Failed to send price alert email: {str(e)}"
             )
+
+
+    def send_password_reset_email(
+        self,
+        recipient_email: str,
+        reset_url: str,
+    ):
+        """
+        Send a password reset email.
+
+        The reset URL contains the one-time reset token.
+        """
+
+        try:
+            # Escape dynamic content for HTML safety
+            safe_reset_url = html.escape(
+                reset_url,
+                quote=True
+            )
+
+            email_html = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta
+                    name="viewport"
+                    content="width=device-width, initial-scale=1.0"
+                >
+            </head>
+
+            <body style="
+                margin: 0;
+                padding: 0;
+                background-color: #f4f4f4;
+                font-family: Arial, Helvetica, sans-serif;
+                color: #1f2937;
+            ">
+
+                <div style="
+                    width: 100%;
+                    padding: 30px 10px;
+                    box-sizing: border-box;
+                ">
+
+                    <div style="
+                        max-width: 600px;
+                        margin: 0 auto;
+                        background-color: #ffffff;
+                        border-radius: 12px;
+                        overflow: hidden;
+                        box-shadow:
+                            0 4px 15px
+                            rgba(0, 0, 0, 0.08);
+                    ">
+
+                        <!-- Header -->
+                        <div style="
+                            background-color: #ff5a1f;
+                            padding: 25px;
+                            text-align: center;
+                            color: #ffffff;
+                        ">
+                            <h1 style="
+                                margin: 0;
+                                font-size: 26px;
+                                font-weight: 700;
+                            ">
+                                DealDrop
+                            </h1>
+
+                            <p style="
+                                margin: 8px 0 0;
+                                font-size: 14px;
+                                color: #fff3ee;
+                            ">
+                                Password Reset
+                            </p>
+                        </div>
+
+                        <!-- Content -->
+                        <div style="
+                            padding: 35px 30px;
+                        ">
+
+                            <h2 style="
+                                margin: 0 0 18px;
+                                font-size: 22px;
+                                color: #1f2937;
+                            ">
+                                Reset your password
+                            </h2>
+
+                            <p style="
+                                margin: 0 0 20px;
+                                font-size: 15px;
+                                line-height: 1.6;
+                                color: #4b5563;
+                            ">
+                                We received a request to reset your
+                                DealDrop password.
+                            </p>
+
+                            <p style="
+                                margin: 0 0 28px;
+                                font-size: 15px;
+                                line-height: 1.6;
+                                color: #4b5563;
+                            ">
+                                Click the button below to choose a
+                                new password.
+                            </p>
+
+                            <!-- CTA -->
+                            <div style="
+                                text-align: center;
+                                margin: 30px 0;
+                            ">
+                                <a
+                                    href="{safe_reset_url}"
+                                    style="
+                                        display: inline-block;
+                                        background-color: #ff5a1f;
+                                        color: #ffffff;
+                                        text-decoration: none;
+                                        padding: 15px 32px;
+                                        border-radius: 7px;
+                                        font-size: 16px;
+                                        font-weight: 700;
+                                    "
+                                >
+                                    Reset Password
+                                </a>
+                            </div>
+
+                            <!-- Expiration -->
+                            <div style="
+                                background-color: #fff7dc;
+                                border-left:
+                                    4px solid #f4a300;
+                                padding: 15px;
+                                margin-top: 25px;
+                                border-radius: 4px;
+                            ">
+                                <p style="
+                                    margin: 0;
+                                    font-size: 14px;
+                                    line-height: 1.5;
+                                    color: #7a5200;
+                                ">
+                                    This password reset link will
+                                    expire in 15 minutes.
+                                </p>
+                            </div>
+
+                            <!-- Security notice -->
+                            <p style="
+                                margin: 28px 0 0;
+                                font-size: 13px;
+                                line-height: 1.6;
+                                color: #9ca3af;
+                            ">
+                                If you did not request a password
+                                reset, you can safely ignore this
+                                email. Your password will remain
+                                unchanged.
+                            </p>
+
+                            <!-- Footer -->
+                            <div style="
+                                text-align: center;
+                                margin-top: 35px;
+                                padding-top: 20px;
+                                border-top:
+                                    1px solid #e5e7eb;
+                            ">
+                                <p style="
+                                    margin: 0;
+                                    font-size: 13px;
+                                    color: #9ca3af;
+                                ">
+                                    DealDrop
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </body>
+            </html>
+            """
+
+            response = resend.Emails.send({
+                "from": settings.RESEND_FROM_EMAIL,
+                "to": [recipient_email],
+                "subject": "Reset your DealDrop password",
+                "html": email_html,
+            })
+
+            return response
+
+        except Exception as e:
+            raise Exception(
+                f"Failed to send password reset email: {str(e)}"
+            )
