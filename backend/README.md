@@ -1,42 +1,57 @@
-Backend Setup
+# Backend Setup
 
-Prerequisites
+## Prerequisites
 
-Python 3.10+
+Make sure the following are installed:
 
-PostgreSQL
+- Python 3.10+
+- PostgreSQL
+- Git
 
-Git
+---
 
-1. Clone the Repository
+## 1. Clone the Repository
 
+```bash
 git clone <repository-url>
 cd DealDrop/backend
+```
 
-2. Create and Activate a Virtual Environment
+---
 
-Windows PowerShell
+## 2. Create and Activate a Virtual Environment
 
+### Windows PowerShell
+
+```powershell
 python -m venv venv
 .\venv\Scripts\Activate.ps1
+```
 
-macOS / Linux
+### macOS / Linux
 
+```bash
 python3 -m venv venv
 source venv/bin/activate
+```
 
-3. Install Dependencies
+---
 
+## 3. Install Dependencies
+
+```bash
 pip install -r requirements.txt
+```
 
-4. Configure Environment Variables
+---
 
-Create a .env file in the backend directory.
+## 4. Configure Environment Variables
 
-Add the environment variables required by the backend, including the database, authentication, external API, and email configuration.
+Create a `.env` file inside the `backend` directory.
 
-Example:
+Add the required environment variables:
 
+```env
 DATABASE_URL=<postgresql-connection-string>
 SECRET_KEY=<your-secret-key>
 
@@ -46,44 +61,78 @@ RESEND_API_KEY=<your-resend-api-key>
 FROM_EMAIL=<your-verified-sender-email>
 
 FRONTEND_URL=http://localhost:5173
+```
 
 Use the exact variable names expected by the backend configuration.
 
-Never commit .env or secrets to Git.
+> **Important:** Never commit `.env` files or secrets to Git.
 
-5. Set Up the Database
+---
 
-Create the PostgreSQL database configured in DATABASE_URL.
+## 5. Set Up the Database
 
-Then apply the existing migrations:
+Create the PostgreSQL database configured in `DATABASE_URL`.
 
+Then apply the existing database migrations:
+
+```bash
 alembic upgrade head
+```
 
-6. Start the Backend
+---
 
+## 6. Start the Backend
+
+Run the FastAPI development server:
+
+```bash
 uvicorn app.main:app --reload
+```
 
-The API will normally run at:
+The API will normally be available at:
 
+```text
 http://localhost:8000
+```
 
-API documentation:
+Interactive API documentation:
 
+```text
 http://localhost:8000/docs
+```
 
-If the project's FastAPI entry point differs from app.main:app, use the module defined by the project.
+> If the FastAPI entry point differs from `app.main:app`, use the module defined by the project.
 
-7. Verify the Setup
+---
 
-Open the API documentation at:
+## 7. Verify the Setup
 
+Open the API documentation in your browser:
+
+```text
 http://localhost:8000/docs
+```
 
-If it loads successfully, the backend is running.
+If the Swagger UI loads successfully, the backend is running correctly.
 
-Docker
+---
 
-If using Docker:
+## Docker
 
+If you prefer to run the backend using Docker, build the image:
+
+```bash
 docker build -t dealdrop-backend .
+```
+
+Then run the container:
+
+```bash
 docker run -p 8000:8000 --env-file .env dealdrop-backend
+```
+
+The backend will be available at:
+
+```text
+http://localhost:8000
+```
