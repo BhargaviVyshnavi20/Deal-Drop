@@ -1,4 +1,3 @@
-<img width="959" height="470" alt="Screenshot 2026-09-01 213144" src="https://github.com/user-attachments/assets/32653028-0d47-465b-a32a-a35edacb4d17" /># DealDrop
 
 ### Price Tracking & Price Alert Application
 
