@@ -1,4 +1,4 @@
-# 📉 DealDrop — Intelligent E-Commerce Price Tracker & Drop Alert System
+# DealDrop — Intelligent E-Commerce Price Tracker & Drop Alert System
 
 [![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
@@ -379,6 +379,3 @@ Every pull request and push to the `main` branch triggers the GitHub Actions CI 
 
 ---
 
-## 📄 License
-
-This project is licensed under the [MIT License](LICENSE).
