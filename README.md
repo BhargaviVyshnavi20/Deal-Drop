@@ -1,16 +1,17 @@
 # 📉 DealDrop — Intelligent E-Commerce Price Tracker & Drop Alert System
 
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.141.1-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![React](https://img.shields.io/badge/React-18.2.0-61DAFB.svg?logo=react&logoColor=black)](https://react.dev/)
-[![Vite](https://img.shields.io/badge/Vite-5.2.0-646CFF.svg?logo=vite&logoColor=white)](https://vitejs.dev/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1.svg?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0-red.svg?logo=sqlalchemy&logoColor=white)](https://www.sqlalchemy.org/)
-[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED.svg?logo=docker&logoColor=white)](https://www.docker.com/)
-[![GitHub Actions CI](https://img.shields.io/badge/CI-GitHub%20Actions-2088FF.svg?logo=githubactions&logoColor=white)](https://github.com/features/actions)
-[![Firecrawl](https://img.shields.io/badge/Web%20Scraping-Firecrawl-FF4500.svg)](https://www.firecrawl.dev/)
-[![Resend](https://img.shields.io/badge/Email-Resend-000000.svg?logo=resend&logoColor=white)](https://resend.com/)
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Python](https://img.shields.io/badge/Python-3.13-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-D71F00?style=for-the-badge&logo=sqlalchemy&logoColor=white)](https://www.sqlalchemy.org/)
+[![Firecrawl](https://img.shields.io/badge/Firecrawl-FF6B35?style=for-the-badge)](https://www.firecrawl.dev/)
+[![Resend](https://img.shields.io/badge/Resend-000000?style=for-the-badge&logo=resend&logoColor=white)](https://resend.com/)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+[![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/features/actions)
 
-DealDrop is a full-stack, automated e-commerce price monitoring platform. It enables users to track prices of items across major online stores (Amazon, Flipkart, and more), visualize price trends over time through interactive charts, and receive automatic instant email alerts whenever a tracked product reaches a new all-time low price.
+DealDrop is a production-grade, full-stack automated price tracking platform. It monitors e-commerce product prices across major online stores (Amazon, Flipkart, and more), maintains historical price records with interactive trend visualizations, and sends instant automated email alerts whenever a tracked product reaches a new all-time low price.
 
 ---
 
@@ -18,6 +19,7 @@ DealDrop is a full-stack, automated e-commerce price monitoring platform. It ena
 
 - [Overview](#-overview)
 - [Key Features](#-key-features)
+- [Screenshots & UI Preview](#-screenshots--ui-preview)
 - [System Architecture & Workflow](#-system-architecture--workflow)
 - [Tech Stack](#-tech-stack)
 - [Repository Structure](#-repository-structure)
@@ -27,22 +29,21 @@ DealDrop is a full-stack, automated e-commerce price monitoring platform. It ena
 - [Environment Configuration](#-environment-configuration)
   - [Backend Configuration (`backend/.env`)](#backend-configuration-backendenv)
   - [Frontend Configuration (`frontend/.env`)](#frontend-configuration-frontendenv)
-- [Getting Started](#-getting-started)
-  - [Option 1: Docker Compose (Recommended)](#option-1-docker-compose-recommended)
-  - [Option 2: Local Development Setup](#option-2-local-development-setup)
+- [Getting Started & Setup](#-getting-started--setup)
+  - [Option 1: Docker Compose (Quickstart)](#option-1-docker-compose-quickstart)
+  - [Option 2: Modular Local Setup](#option-2-modular-local-setup)
 - [Automated Testing & CI/CD](#-automated-testing--cicd)
-- [Screenshots & UI Preview](#-screenshots--ui-preview)
 - [License](#-license)
 
 ---
 
 ## 📖 Overview
 
-Online shoppers frequently miss price cuts, discounts, and flash sales because manual monitoring across e-commerce platforms is tedious and inconsistent. **DealDrop** automates this entire lifecycle:
+Online shoppers frequently miss price drops, flash sales, and discounts because manual monitoring across e-commerce platforms is tedious and inconsistent. **DealDrop** automates this entire lifecycle:
 
-1. **Effortless Product Ingestion**: Paste any product URL to scrape title, current price, currency, and product images in real time using the Firecrawl LLM-powered scraping engine.
-2. **Historical Price Intelligence**: Logs all price observations into PostgreSQL with time-series history for statistical analysis (lowest price, highest price, net fluctuation).
-3. **Background Scheduled Tracking**: Background asynchronous cron jobs periodically check all tracked listings for updates.
+1. **Effortless Product Ingestion**: Paste any product URL to extract title, current price, currency, and product images in real time using the Firecrawl LLM-powered scraping engine.
+2. **Historical Price Intelligence**: Logs all price observations into PostgreSQL with time-series history for statistical analysis (lowest price, highest price, net percentage fluctuation).
+3. **Background Scheduled Tracking**: Asynchronous cron jobs periodically check all tracked listings for price updates.
 4. **Intelligent Drop Alerts**: Dispatches transactional emails via Resend when a price drops below its historical minimum.
 5. **Modern Dashboard Experience**: Intuitive dark/light UI with real-time feedback, interactive Recharts graphs, and authentication (Local JWT + Google OAuth 2.0).
 
@@ -50,9 +51,9 @@ Online shoppers frequently miss price cuts, discounts, and flash sales because m
 
 ## ✨ Key Features
 
-- **⚡ Instant URL-Based Ingestion**: Paste an e-commerce link and let Firecrawl extract structured product information instantly.
+- **⚡ Instant URL-Based Ingestion**: Paste an e-commerce link and let Firecrawl extract structured product information automatically.
 - **📈 Interactive Price Charts**: Visual history charts powered by Recharts with dynamic price delta indicators (▲ Increase / ▼ Decrease / — Stable).
-- **⏰ Automated Background Scheduler**: Integrated APScheduler running asynchronous cron jobs to refresh product pricing without blocking the web API.
+- **⏰ Automated Background Scheduler**: Integrated APScheduler running asynchronous cron jobs to refresh product pricing without blocking web requests.
 - **✉️ Automated Lowest-Price Alerts**: Automatic trigger-based transactional email notifications via Resend when prices drop to a new recorded low.
 - **🔐 Multi-Method Authentication**:
   - Email/Password authentication with Argon2 password hashing and JWT access tokens.
@@ -61,6 +62,25 @@ Online shoppers frequently miss price cuts, discounts, and flash sales because m
 - **🌓 Adaptive Theming**: Built-in dark and light theme switcher with persistent local storage preferences.
 - **🐳 Full Containerization**: Multi-service Docker Compose orchestration with PostgreSQL 16 Alpine, FastAPI, and Vite React frontend.
 - **🛡️ Quality & CI/CD**: Automated GitHub Actions CI pipeline executing end-to-end async backend test suites with a live PostgreSQL service container, frontend builds, and Docker image validation.
+
+---
+
+## 📸 Screenshots & UI Preview
+
+### Landing Page & Product Tracking Hero
+<p align="center">
+  <img width="959" height="475" alt="DealDrop Landing Page" src="https://github.com/user-attachments/assets/1b4ed88d-68fa-4ef2-9669-8a2aad3475a0" />
+</p>
+
+### Tracked Products Dashboard
+<p align="center">
+  <img width="956" height="475" alt="Product Tracking Dashboard" src="https://github.com/user-attachments/assets/a25f7397-af57-4f3e-8390-912d62945d4c" />
+</p>
+
+### Interactive Price History & Trends
+<p align="center">
+  <img width="954" height="472" alt="Price History Charts" src="https://github.com/user-attachments/assets/6ba58bc9-a152-464e-9fab-b9ce668be116" />
+</p>
 
 ---
 
@@ -148,11 +168,11 @@ flowchart TD
 ## 📂 Repository Structure
 
 ```text
-DealDrop/
+Deal-Drop/
 ├── .github/
 │   └── workflows/
 │       └── ci.yml                     # GitHub Actions CI workflow
-├── backend/
+├── backend/                           # FastAPI backend service
 │   ├── alembic/                       # Alembic database migration scripts
 │   ├── app/
 │   │   ├── core/                      # Application config, security & auth dependencies
@@ -174,8 +194,9 @@ DealDrop/
 │   ├── tests/                         # Pytest test suite for backend services and endpoints
 │   ├── Dockerfile                     # Production backend Docker image definition
 │   ├── pytest.ini                     # Pytest configuration
-│   └── requirements.txt               # Backend Python dependencies
-├── frontend/
+│   ├── requirements.txt               # Backend Python dependencies
+│   └── README.md                      # Dedicated backend setup guide
+├── frontend/                          # React + Vite frontend application
 │   ├── public/                        # Static assets (favicons, SVGs)
 │   ├── src/
 │   │   ├── api/                       # API client with authorization header interceptors
@@ -193,9 +214,10 @@ DealDrop/
 │   │   └── main.jsx                   # React DOM render entry point
 │   ├── Dockerfile                     # Frontend Docker image definition
 │   ├── package.json                   # Frontend dependencies and npm scripts
-│   └── vite.config.js                 # Vite bundler configuration
+│   ├── vite.config.js                 # Vite bundler configuration
+│   └── README.md                      # Dedicated frontend setup guide
 ├── docker-compose.yml                 # Multi-container orchestration (DB, Backend, Frontend)
-└── README.md                          # Project documentation
+└── README.md                          # Main repository documentation
 ```
 
 ---
@@ -271,11 +293,11 @@ VITE_GOOGLE_CLIENT_ID=your_google_oauth_client_id.apps.googleusercontent.com
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Getting Started & Setup
 
-### Option 1: Docker Compose (Recommended)
+### Option 1: Docker Compose (Quickstart)
 
-Run the entire stack (PostgreSQL database, FastAPI backend, and React frontend) with a single command:
+Run the entire multi-container stack (PostgreSQL database, FastAPI backend, and React frontend) with a single command:
 
 ```bash
 # Clone the repository
@@ -293,44 +315,30 @@ Access the applications:
 
 ---
 
-### Option 2: Local Development Setup
+### Option 2: Modular Local Setup
 
-#### 1. Start PostgreSQL
-Ensure PostgreSQL 16+ is running and create the databases:
-```sql
-CREATE DATABASE deal_drop;
-CREATE DATABASE dealdrop_test;
-```
+For individual component development, refer to each module's dedicated setup guide:
 
-#### 2. Backend Setup
+#### 🔹 Backend Setup
+For detailed Python environment setup, virtual environments, dependencies, and database migrations:
+👉 **[Backend Setup & Documentation](backend/README.md)**
+
 ```bash
 cd backend
-
-# Create and activate virtual environment
 python -m venv env
-# On Windows:
-.\env\Scripts\activate
-# On Linux/macOS:
-source env/bin/activate
-
-# Install dependencies
+# Windows: .\env\Scripts\activate | Linux/macOS: source env/bin/activate
 pip install -r requirements.txt
-
-# Run database migrations with Alembic
 alembic upgrade head
-
-# Start FastAPI development server
 uvicorn app.main:app --reload --port 8000
 ```
 
-#### 3. Frontend Setup
+#### 🔹 Frontend Setup
+For Node.js configuration, npm packages, environment variables, and Vite dev server:
+👉 **[Frontend Setup & Documentation](frontend/README.md)**
+
 ```bash
 cd frontend
-
-# Install node dependencies
 npm install
-
-# Start Vite development server
 npm run dev
 ```
 
@@ -367,17 +375,7 @@ pytest tests/test_email_service.py
 Every pull request and push to the `main` branch triggers the GitHub Actions CI pipeline:
 1. **Backend Tests Job**: Spawns a PostgreSQL service container, installs dependencies, and runs `pytest`.
 2. **Frontend Build Job**: Sets up Node.js 22, installs dependencies via `npm ci`, and validates the production bundle build (`npm run build`).
-3. **Docker Build Job**: Validates that both backend and frontend Docker containers build cleanly and without errors.
-
----
-
-## 📸 Screenshots & UI Preview
-
-<p align="center">
-  <img src="frontend/public/favicon.svg" alt="DealDrop Logo" width="100"/>
-</p>
-
-> **Note:** Place your application screenshots, price charts, or demo walkthroughs in an `assets/` or `images/` directory to display them here.
+3. **Docker Build Job**: Validates that both backend and frontend Docker containers build cleanly without errors.
 
 ---
 
